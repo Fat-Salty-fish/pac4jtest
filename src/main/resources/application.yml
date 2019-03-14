@@ -1,0 +1,10 @@
+spring:
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+server:
+  port: 10000
+  tomcat:
+    uri-encoding: utf-8
+
