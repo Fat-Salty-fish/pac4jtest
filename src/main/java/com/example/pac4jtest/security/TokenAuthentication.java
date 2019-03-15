@@ -10,11 +10,11 @@ import java.util.Collection;
 /**
  * @Description
  * @auther 李忠杰
- * @create 2019-03-13 15:14
+ * @create 2019-03-15 10:11
  */
 @Getter
 @Setter
-public class AuthenticationToken extends AbstractAuthenticationToken {
+public class TokenAuthentication extends AbstractAuthenticationToken {
     private String userId;      //用户id
     private String userName;    //用户名字
     private String position;    //用户岗位(理解为权限?)
@@ -22,14 +22,14 @@ public class AuthenticationToken extends AbstractAuthenticationToken {
     private String token;       //传入的token
 
     //在认证之前 被截获
-    public AuthenticationToken(String token) {
+    public TokenAuthentication(String token) {
         super(null);
-        System.out.println("正在创建认证对象！");
+        System.out.println("传入了code 使用code获取token！");
         this.token = token;
     }
 
     //在认证之后 返回此对象 此时对象已经被验证 得到了详细信息
-    public AuthenticationToken(String userId, String userName, String position, Collection<? extends GrantedAuthority> authorities) {
+    public TokenAuthentication(String userId, String userName, String position, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.userId = userId;
         this.userName = userName;

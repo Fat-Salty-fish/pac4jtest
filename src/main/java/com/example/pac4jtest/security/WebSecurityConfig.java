@@ -7,11 +7,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 /**
  * @Description
  * @auther 李忠杰
@@ -31,13 +28,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     //过滤器配置
     @Bean
-    public AuthenticationProcessingFilter authenticationProcessingFilter(AuthenticationManager authenticationManager) {
-        AuthenticationProcessingFilter authenticationProcessingFilter = new AuthenticationProcessingFilter();
+    public JWTAuthorizationFilter authenticationProcessingFilter(AuthenticationManager authenticationManager) {
+        JWTAuthorizationFilter jwtAuthorizationFilter = new JWTAuthorizationFilter(authenticationManager);
         //为过滤器添加认证器
-        authenticationProcessingFilter.setAuthenticationManager(authenticationManager);
+        jwtAuthorizationFilter.setAuthenticationManager(authenticationManager);
         //重写认证失败时的跳转页面
-        authenticationProcessingFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/api/bas/test/error"));
-        return authenticationProcessingFilter;
+        jwtAuthorizationFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/api/bas/test/error"));
+        return jwtAuthorizationFilter;
     }
 
     @Override
@@ -49,15 +46,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/", "/api/bas/test/login", "/api/bas/test/error").permitAll()
-                    .anyRequest().authenticated()
-                    .and()
-                .formLogin().loginPage("/api/bas/test/login").permitAll()
-                .successHandler(successHandler())
-                .failureHandler(failureHandler())
-                ;
+                .antMatchers("/api/bas/test/login","/api/bas/test/error").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable();
 
 
         //设置filter调用顺序
@@ -70,14 +63,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(myAuthenticationProvider());
     }
 
-    @Bean
-    public MySuccessHandler successHandler(){
-        return new MySuccessHandler();
-    }
-
-    @Bean
-    public MyFailureHandler failureHandler(){
-        return new MyFailureHandler();
-    }
 
 }

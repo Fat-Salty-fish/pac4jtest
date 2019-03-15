@@ -1,9 +1,11 @@
 package com.example.pac4jtest.security;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -27,29 +29,26 @@ public class MyAuthenticationProvider implements AuthenticationProvider{
     //在这个方法里对token进行验证
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        AuthenticationToken authenticationToken = (AuthenticationToken) authentication;
-        //获取token
-        String token = authenticationToken.getToken();
-        //如果token为空 则用户需要登录 登录时需要携带code 直接跳转到错误界面即可 让前端调用登录界面
-        //通过上面的接口获取token 再进行验证
-        //当token不为空时 因为是Token 所以将token先解析 解析之后获取用户信息 根据用户信息获取redis里的token
-        //与传入的token进行匹配 如果匹配则登录成功并赋予权限 如果匹配不成功则登录不成功
-        System.out.println("匹配到了Authentication这里啦~");
-        if(token == null){
-            System.out.println("你的token是空的！你真是个弟弟啊！");
-            throw new BadCredentialsException("输入的token为空 访问失败");
+        //对token进行验证 从redis中获取token 与这个token进行对比 如果对比相同则成功 如果对比不同则失败
+        System.out.println("要对token进行验证了");
+        TokenAuthentication auth = (TokenAuthentication)authentication;
+        if(auth==null){
+            throw new BadCredentialsException("发生了null错误");
+        }
+        if(auth != null && auth.isAuthenticated()){
+            return new TokenAuthentication(auth.getUserId(),auth.getUserName(),auth.getPosition(),Arrays.asList(authorityMap.get("1")));
+        }
+        String token = (String)auth.getPrincipal();
+        if ("123456".equals(token)){
+            return new TokenAuthentication("123454321","李忠杰","老板",Arrays.asList(authorityMap.get("1")));
         }else {
-            if("123456".equals(token)){
-                System.out.println("你的token是正确的哦");
-                return new AuthenticationToken(token,"李忠杰","sit", Arrays.asList(authorityMap.get("1")));
-            }
-            throw new BadCredentialsException("输入的token错误或已经失效 请重新登录");
+            throw new BadCredentialsException("token码错误 请重新登录");
         }
     }
 
     //只支持AuthenticationToken这个类来验证身份
     @Override
     public boolean supports(Class<?> authentication) {
-        return (AuthenticationToken.class.isAssignableFrom(authentication));
+        return (TokenAuthentication.class.isAssignableFrom(authentication));
     }
 }
