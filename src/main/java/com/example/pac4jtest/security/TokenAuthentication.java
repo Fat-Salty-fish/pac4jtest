@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl;
 
 import java.util.Collection;
 
@@ -25,6 +26,7 @@ public class TokenAuthentication extends AbstractAuthenticationToken {
     public TokenAuthentication(String token) {
         super(null);
         System.out.println("传入了code 使用code获取token！");
+        this.setAuthenticated(false);
         this.token = token;
     }
 

@@ -36,17 +36,27 @@ public class MyAuthenticationProvider implements AuthenticationProvider{
             throw new BadCredentialsException("发生了null错误");
         }
         if(auth != null && auth.isAuthenticated()){
-            return new TokenAuthentication(auth.getUserId(),auth.getUserName(),auth.getPosition(),Arrays.asList(authorityMap.get("1")));
+            System.out.println("这个认证已经被认证过了");
+            TokenAuthentication result = new TokenAuthentication(auth.getUserId(),auth.getUserName(),auth.getPosition(),Arrays.asList(authorityMap.get("1")));
+            result.setDetails(null);
+            return result;
         }
         String token = (String)auth.getPrincipal();
         if ("123456".equals(token)){
-            return new TokenAuthentication("123454321","李忠杰","老板",Arrays.asList(authorityMap.get("1")));
+            System.out.println("Token认证成功 token为123456");
+            TokenAuthentication result = new TokenAuthentication("123454321","李忠杰","老板",Arrays.asList(authorityMap.get("1")));
+            Detail detail = new Detail();
+            detail.setUserName("李忠杰");
+            detail.setToken(token);
+            detail.setAuthorities(Arrays.asList(authorityMap.get("1")));
+//            result.setDetails(detail);
+            return result;
         }else {
             throw new BadCredentialsException("token码错误 请重新登录");
         }
     }
 
-    //只支持AuthenticationToken这个类来验证身份
+    //支持AuthenticationToken这个类来验证身份
     @Override
     public boolean supports(Class<?> authentication) {
         return (TokenAuthentication.class.isAssignableFrom(authentication));

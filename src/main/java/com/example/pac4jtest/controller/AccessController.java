@@ -1,5 +1,6 @@
 package com.example.pac4jtest.controller;
 
+import com.example.pac4jtest.security.TokenAuthentication;
 import com.example.pac4jtest.service.AccessService;
 import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +22,36 @@ import java.util.Map;
  * @create 2019-03-11 14:17
  */
 @RestController
-@RequestMapping("/api/bas/test")
 public class AccessController{
     @Autowired
     private AccessService accessService;
 
-    @GetMapping("/login")
+    @GetMapping("/api/bas/test/login")
     public Object login(String code, HttpServletResponse response){
         return accessService.findUser(code,response);
     }
 
 
 
-    @GetMapping("/helloWorld")
-    @PreAuthorize("hasAuthority('all')")
+    @GetMapping("/api/bas/test/helloWorld")
+    @PreAuthorize("hasAuthority('test')")
     public Object hello() {
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getCredentials());
+        System.out.println("123");
         return "helloWorld！";
     }
 
-    @GetMapping("/error")
+    @GetMapping("/api/bas/test/error")
     public Object error(){
         Map<String,String> result = new HashMap<>();
         result.put("code", "2");
         result.put("msg","token错误 请重新登录");
         result.put("data",null);
         return result;
+    }
+
+    @GetMapping("/")
+    public Object test(){
+        return "跳转到了这个页面 应该如何处理这个问题呢？";
     }
 }

@@ -1,6 +1,7 @@
 package com.example.pac4jtest.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.catalina.authenticator.SavedRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -53,17 +55,26 @@ public class JWTAuthorizationFilter extends AbstractAuthenticationProcessingFilt
     }
 
 //    认证成功时的操作
-//    @Override
-//    protected void successfulAuthentication(HttpServletRequest request,
-//                                            HttpServletResponse response,
-//                                            FilterChain chain,
-//                                            Authentication authResult) throws IOException, ServletException {
-//
-//        System.out.println("认证成功 即将创建用户进入SecurityContextHolder");
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
+
+        System.out.println("认证成功 即将创建用户进入SecurityContextHolder");
 //        super.successfulAuthentication(request,response,chain,authResult);
-//        System.out.println(((TokenAuthentication)SecurityContextHolder.getContext().getAuthentication()).getAuthorities());
-//        chain.doFilter(request,response);
-//    }
+//        //这里会依然被这个filter截获 再次认证 如何解决这个问题呢
+//        System.out.println(request.getRequestURL());
+
+        //莫非是路径未被读取在缓存中？
+        SecurityContextHolder.getContext().setAuthentication(authResult);SecurityContextHolder.getContext().setAuthentication(authResult);
+
+        SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
+
+        handler.onAuthenticationSuccess(request,response,authResult);
+
+        System.out.println(request.getRequestURL());
+    }
 
     //认证失败时的操作
 //    @Override
