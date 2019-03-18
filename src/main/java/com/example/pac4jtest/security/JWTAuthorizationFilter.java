@@ -1,27 +1,32 @@
 package com.example.pac4jtest.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.catalina.authenticator.SavedRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Principal;
 
 /**
  * @Description 用户认证拦截器
@@ -32,7 +37,7 @@ public class JWTAuthorizationFilter extends AbstractAuthenticationProcessingFilt
     private AuthenticationManager authenticationManager;
 
     protected JWTAuthorizationFilter(AuthenticationManager manager) {
-        super(new AntPathRequestMatcher("/api/bas/test/helloWorld"));
+        super(new AntPathRequestMatcher("/api/bas/test/**"));
         this.authenticationManager = manager;
     }
 
@@ -62,39 +67,38 @@ public class JWTAuthorizationFilter extends AbstractAuthenticationProcessingFilt
                                             Authentication authResult) throws IOException, ServletException {
 
         System.out.println("认证成功 即将创建用户进入SecurityContextHolder");
-//        super.successfulAuthentication(request,response,chain,authResult);
+        super.successfulAuthentication(request,response,chain,authResult);
 //        //这里会依然被这个filter截获 再次认证 如何解决这个问题呢
 //        System.out.println(request.getRequestURL());
 
         //莫非是路径未被读取在缓存中？
-        SecurityContextHolder.getContext().setAuthentication(authResult);SecurityContextHolder.getContext().setAuthentication(authResult);
-
-        SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
-
-        handler.onAuthenticationSuccess(request,response,authResult);
-
+        //好像是路径未被读取在缓存中 那么为什么我无法自定义实现跳转呢
+//        SecurityContextHolder.getContext().setAuthentication(authResult);SecurityContextHolder.getContext().setAuthentication(authResult);
         System.out.println(request.getRequestURL());
+        System.out.println(request.getRequestURI());
+        //这里如果这样写的话会一直重复进行 不妥当
+//        String url = request.getRequestURL().toString();
+//        response.sendRedirect(url);
+        return ;
     }
 
-    //认证失败时的操作
-//    @Override
-//    protected void unsuccessfulAuthentication(HttpServletRequest request,
-//                                              HttpServletResponse response,
-//                                              AuthenticationException failed) throws IOException, ServletException {
-//        SecurityContextHolder.clearContext();
-//        //设置响应码
-//        response.setStatus(HttpStatus.SC_UNAUTHORIZED);
-//        //设置响应投
-//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//        String message;
-//        if (failed.getCause() != null) {
-//            message = failed.getCause().getMessage();
-//        } else {
-//            message = failed.getMessage();
-//        }
-//
-//        byte[] body = new ObjectMapper().writeValueAsBytes(message);
-//
-//        response.getOutputStream().write(body);
-//    }
+//    认证失败时的操作
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
+        SecurityContextHolder.clearContext();
+        //设置响应码
+        response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+        //设置响应投
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String message;
+        if (failed.getCause() != null) {
+            message = failed.getCause().getMessage();
+        } else {
+            message = failed.getMessage();
+        }
+        byte[] body = new ObjectMapper().writeValueAsBytes(message);
+        response.getOutputStream().write(body);
+    }
 }

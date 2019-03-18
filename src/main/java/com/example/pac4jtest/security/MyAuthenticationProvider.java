@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -41,14 +42,15 @@ public class MyAuthenticationProvider implements AuthenticationProvider{
             result.setDetails(null);
             return result;
         }
+
         String token = (String)auth.getPrincipal();
         if ("123456".equals(token)){
             System.out.println("Token认证成功 token为123456");
             TokenAuthentication result = new TokenAuthentication("123454321","李忠杰","老板",Arrays.asList(authorityMap.get("1")));
-            Detail detail = new Detail();
-            detail.setUserName("李忠杰");
-            detail.setToken(token);
-            detail.setAuthorities(Arrays.asList(authorityMap.get("1")));
+//            Detail detail = new Detail();
+//            detail.setUserName("李忠杰");
+//            detail.setToken(token);
+//            detail.setAuthorities(Arrays.asList(authorityMap.get("1")));
 //            result.setDetails(detail);
             return result;
         }else {

@@ -31,10 +31,8 @@ public class AccessController{
         return accessService.findUser(code,response);
     }
 
-
-
     @GetMapping("/api/bas/test/helloWorld")
-    @PreAuthorize("hasAuthority('test')")
+    @PreAuthorize("hasAuthority('all')")
     public Object hello() {
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getCredentials());
         System.out.println("123");
@@ -52,6 +50,6 @@ public class AccessController{
 
     @GetMapping("/")
     public Object test(){
-        return "跳转到了这个页面 应该如何处理这个问题呢？";
+        return "跳转到了test接口？";
     }
 }
