@@ -1,17 +1,14 @@
 package com.example.pac4jtest.controller;
 
-import com.example.pac4jtest.security.TokenAuthentication;
 import com.example.pac4jtest.service.AccessService;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,11 +25,11 @@ public class AccessController{
 
     @GetMapping("/api/bas/test/login")
     public Object login(String code, HttpServletResponse response){
-        return accessService.findUser(code,response);
+        return "helloWolrd!";
+//        return accessService.login(code,response);
     }
 
     @GetMapping("/api/bas/test/helloWorld")
-    @PreAuthorize("hasAuthority('all')")
     public Object hello() {
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getCredentials());
         System.out.println("123");
@@ -49,6 +46,7 @@ public class AccessController{
     }
 
     @GetMapping("/")
+    @PreAuthorize("permitAll()")
     public Object test(){
         return "跳转到了test接口？";
     }

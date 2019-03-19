@@ -2,6 +2,17 @@ spring:
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
+  redis:
+    host: localhost
+    port: 6379
+    jedis:
+      pool:
+        #最大活跃连接数
+        max-active: 8
+        #最大空闲连接数
+        max-idle: 8
+        #最小空间连接数
+        min-idle: 0
 
 server:
   port: 10000
